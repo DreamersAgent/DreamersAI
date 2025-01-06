@@ -1,0 +1,65 @@
+import tweepy
+import openai
+
+# Twitter API keys and tokens
+API_KEY = "your_api_key"
+API_SECRET = "your_api_secret"
+ACCESS_TOKEN = "your_access_token"
+ACCESS_TOKEN_SECRET = "your_access_token_secret"
+
+# OpenAI API key (if using for AI-generated content)
+OPENAI_API_KEY = "your_openai_api_key"
+
+openai.api_key = OPENAI_API_KEY
+
+# Authenticate with Twitter
+auth = tweepy.OAuth1UserHandler(API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+api = tweepy.API(auth)
+
+def post_tweet(content):
+    """Post a tweet."""
+    try:
+        api.update_status(content)
+        print("Tweet posted successfully!")
+    except Exception as e:
+        print(f"Error posting tweet: {e}")
+
+def reply_to_mentions():
+    """Reply to mentions."""
+    try:
+        mentions = api.mentions_timeline(count=5)
+        for mention in mentions:
+            print(f"Replying to {mention.user.screen_name}")
+            response = generate_response(mention.text)
+            api.update_status(f"@{mention.user.screen_name} {response}", in_reply_to_status_id=mention.id)
+    except Exception as e:
+        print(f"Error replying to mentions: {e}")
+
+def like_tweets_with_keyword(keyword):
+    """Like tweets containing a specific keyword."""
+    try:
+        tweets = api.search_tweets(q=keyword, count=5)
+        for tweet in tweets:
+            api.create_favorite(tweet.id)
+            print(f"Liked tweet by {tweet.user.screen_name}")
+    except Exception as e:
+        print(f"Error liking tweets: {e}")
+
+def generate_response(prompt):
+    """Generate a response using OpenAI."""
+    try:
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=f"Generate a friendly, concise reply to: {prompt}",
+            max_tokens=50
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        print(f"Error generating response: {e}")
+        return "Sorry, I couldn't process that."
+
+# Example usage
+if __name__ == "__main__":
+    post_tweet("Hello, Twitter! This is my AI agent in action. 🚀")
+    reply_to_mentions()
+    like_tweets_with_keyword("AI")
