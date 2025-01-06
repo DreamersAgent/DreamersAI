@@ -1,0 +1,51 @@
+import tweepy
+import openai
+
+# Twitter API credentials
+API_KEY = "your_api_key"
+API_SECRET = "your_api_secret"
+ACCESS_TOKEN = "your_access_token"
+ACCESS_TOKEN_SECRET = "your_access_token_secret"
+
+# OpenAI API key
+OPENAI_API_KEY = "your_openai_api_key"
+
+openai.api_key = OPENAI_API_KEY
+
+# Authenticate with Twitter
+auth = tweepy.OAuth1UserHandler(API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+api = tweepy.API(auth)
+
+def fetch_mentions():
+    """Fetch recent mentions of the bot."""
+    try:
+        mentions = api.mentions_timeline(count=5, tweet_mode="extended")
+        for mention in mentions:
+            tweet_text = mention.full_text
+            username = mention.user.screen_name
+            print(f"New mention from @{username}: {tweet_text}")
+            
+            # Analyze and understand the tweet
+            analysis = analyze_tweet(tweet_text)
+            print(f"Analysis of @{username}'s tweet: {analysis}")
+    except Exception as e:
+        print(f"Error fetching mentions: {e}")
+
+def analyze_tweet(tweet_text):
+    """Analyze and understand the tweet using OpenAI."""
+    try:
+        # Prompt GPT to analyze the tweet
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=f"Analyze the following tweet for sentiment, intent, and key topics:\n\nTweet: {tweet_text}\n\nProvide your analysis in a structured format.",
+            max_tokens=100,
+            temperature=0.7
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        print(f"Error analyzing tweet: {e}")
+        return "Could not analyze the tweet."
+
+if __name__ == "__main__":
+    print("AI Agent: Reading and understanding tweets sent to it...")
+    fetch_mentions()
