@@ -1,0 +1,60 @@
+import tweepy
+import openai
+
+# Twitter API credentials
+API_KEY = "your_api_key"
+API_SECRET = "your_api_secret"
+ACCESS_TOKEN = "your_access_token"
+ACCESS_TOKEN_SECRET = "your_access_token_secret"
+
+# OpenAI API key
+OPENAI_API_KEY = "your_openai_api_key"
+openai.api_key = OPENAI_API_KEY
+
+# Authenticate with Twitter
+auth = tweepy.OAuth1UserHandler(API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+api = tweepy.API(auth)
+
+def fetch_mentions():
+    """Fetch recent mentions of the bot."""
+    try:
+        mentions = api.mentions_timeline(count=5, tweet_mode="extended")
+        for mention in mentions:
+            tweet_text = mention.full_text
+            username = mention.user.screen_name
+            print(f"New mention from @{username}: {tweet_text}")
+            
+            # Check if the mention includes a request for advice
+            if "advice" in tweet_text.lower() or "goal" in tweet_text.lower() or "dream" in tweet_text.lower():
+                response = generate_advice(tweet_text)
+                reply_to_tweet(mention.id, username, response)
+    except Exception as e:
+        print(f"Error fetching mentions: {e}")
+
+def generate_advice(tweet_text):
+    """Generate advice based on the tweet's content using OpenAI."""
+    try:
+        # Prompt GPT to provide advice
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=f"A person tweeted this: '{tweet_text}'. They want advice on achieving their goals and dreams. Respond with clear, inspiring, and practical advice.",
+            max_tokens=100,
+            temperature=0.7
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        print(f"Error generating advice: {e}")
+        return "Sorry, I couldn't generate advice at the moment."
+
+def reply_to_tweet(tweet_id, username, response):
+    """Reply to a tweet with the AI-generated advice."""
+    try:
+        reply_text = f"@{username} {response}"
+        api.update_status(status=reply_text, in_reply_to_status_id=tweet_id)
+        print(f"Replied to @{username} with advice.")
+    except Exception as e:
+        print(f"Error replying to tweet: {e}")
+
+if __name__ == "__main__":
+    print("AI Agent: Ready to give advice on achieving goals and dreams...")
+    fetch_mentions()
