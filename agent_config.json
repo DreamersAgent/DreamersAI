@@ -1,0 +1,21 @@
+{
+  "agent": {
+    "name": "HumanInteractionDetector",
+    "description": "An AI agent that identifies if it is talking to a human and responds appropriately.",
+    "heuristics": {
+      "check_empty_input": true,
+      "check_numeric_input": true
+    },
+    "nlp_model": {
+      "library": "transformers",
+      "pipeline": "text-classification",
+      "model": "bhadresh-savani/distilbert-base-uncased-emotion",
+      "human_emotion_labels": ["joy", "sadness", "anger", "fear", "neutral"]
+    },
+    "responses": {
+      "human_detected": "Hello, human! How can I assist you today?",
+      "non_human_detected": "I'm sorry, I didn't understand that. Are you a human?"
+    },
+    "exit_commands": ["exit", "quit"]
+  }
+}
