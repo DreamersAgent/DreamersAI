@@ -1,0 +1,44 @@
+{
+  "agent": {
+    "name": "TwitterBot",
+    "description": "An AI agent that replies to people interacting with it on Twitter.",
+    "api": {
+      "platform": "Twitter",
+      "authentication": {
+        "api_key": "your_api_key",
+        "api_key_secret": "your_api_key_secret",
+        "access_token": "your_access_token",
+        "access_token_secret": "your_access_token_secret"
+      }
+    },
+    "message_handling": {
+      "reply_to_mentions": true,
+      "reply_to_direct_messages": false,
+      "keywords_to_ignore": ["spam", "ad", "promotion"],
+      "maximum_reply_length": 280
+    },
+    "heuristics": {
+      "check_empty_input": true,
+      "check_numeric_input": true,
+      "check_profanity": true,
+      "profanity_filter_level": "high"
+    },
+    "nlp_model": {
+      "library": "transformers",
+      "pipeline": "text-generation",
+      "model": "gpt-3.5-turbo",
+      "max_response_length": 150
+    },
+    "responses": {
+      "default_reply": "Hello! Thanks for reaching out. How can I help you today?",
+      "keyword_reply": {
+        "hello": "Hi there! 😊",
+        "help": "Sure, I'd be happy to assist. Can you tell me more?",
+        "thanks": "You're welcome! Let me know if you need anything else."
+      },
+      "profanity_reply": "I'm sorry, but I can't engage with inappropriate language.",
+      "error_reply": "Oops! Something went wrong. Please try again later."
+    },
+    "exit_commands": ["stop", "quit", "bye"]
+  }
+}
